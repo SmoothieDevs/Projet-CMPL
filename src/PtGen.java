@@ -225,7 +225,7 @@ public class PtGen {
 		
 		case 1:
 				//Lecture d'un Ident
-				System.out.println(UtilLex.numIdCourant);
+				System.out.println(UtilLex.numIdCourant); 
 			break;
 			
 		case 255 : 
