@@ -208,6 +208,7 @@ public class PtGen {
 	
 		// initialisation du type de l'expression courante
 		tCour = NEUTRE;
+		vCour = 0;
 
 	} // initialisations
 
@@ -225,96 +226,39 @@ public class PtGen {
 		
 		case 1:
 				//Lecture d'un Ident
-		//	po.produire(RESERVER);
+			if(presentIdent(bc)==0 || tabSymb.length == 0) {
+				if(bc == 0) {
+					placeIdent(UtilLex.numIdCourant, VARGLOBALE, tCour, it++);	
+				}else {
+					placeIdent(UtilLex.numIdCourant, VARLOCALE, tCour, it++);
+				}
+			}else {
+				tCour = tabSymb[presentIdent(bc)].type;
+			}
+			
+			po.produire(RESERVER);
+			tCour = NEUTRE;
 			break;
 			
 		case 2:
-		//	po.produire(EMPILER);
+			if(presentIdent(bc)==0 || tabSymb.length == 0) {
+				placeIdent(UtilLex.numIdCourant, CONSTANTE, tCour, vCour);	
+			}else {
+				tCour = tabSymb[presentIdent(bc)].type;
+			}
+			po.produire(RESERVER);
+			tCour = NEUTRE;
+			it++;
 			break;
-			
-		case 3: 
-		//	po.produire(CONTENUG);
+		
+		case 3:
+			tCour = ENT;
 			break;
 			
 		case 4:
-		//	po.produire(AFFECTERG);
+			tCour = BOOL;
 			break;
 			
-		case 5:
-		//	po.produire(OU);
-			break;
-			
-		case 6: 
-		//	po.produire(ET);
-			break;
-			
-		case 7:
-		//	po.produire(NON);
-			break;
-			
-		case 8:
-		//	po.produire(INF);
-			break;
-			
-		case 9:
-		//	po.produire(INFEG);
-			break;
-			
-		case 10:
-		//	po.produire(SUP);
-			break;
-			
-		case 11:
-		//	po.produire(SUPEG);
-			break;
-			
-		case 12:
-		//	po.produire(EG);
-			break;
-			
-		case 13:
-		//	po.produire(DIFF);
-			break;
-			
-		case 14:
-		//	po.produire(ADD);
-			break;
-			
-		case 15:
-		//	po.produire(SOUS);
-			break;
-			
-		case 16:
-		//	po.produire(MUL);
-			break;
-			
-		case 17:
-		//	po.produire(DIV);
-			break;
-		
-		case 18:
-		//	po.produire(BSIFAUX);
-			break;
-			
-		case 19:
-		//	po.produire(BINCOND);
-			break;
-			
-		case 20:
-		//	po.produire(LIRENT);
-			break;
-			
-		case 21:
-		//	po.produire(LIREBOOL);
-			break;
-			
-		case 22:
-		//	po.produire(ECRENT);
-			break;
-			
-		case 23:
-		//	po.produire(ECRBOOL);
-			break;
 			
 		case 24:
 		po.produire(ARRET);
