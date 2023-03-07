@@ -67,7 +67,7 @@ specif  : ident  ( 'fixe' '(' type  ( ',' type  )* ')' )?
 consts  : 'const' ( ident {PtGen.pt(1);}  '=' valeur ptvg {PtGen.pt(9);} )+ 
   ;
   
-vars  : 'var' ( type ident {PtGen.pt(2);} ( ','  ident {PtGen.pt(2);} )* ptvg  )+  {PtGen.pt(53);}
+vars  : 'var' ( type ident {PtGen.pt(2);} ( ','  ident {PtGen.pt(2);} )* ptvg  )+  {PtGen.pt(10);}
   ;
   
 type  : 'ent' {PtGen.pt(7);}   
@@ -128,11 +128,11 @@ boucle  : 'ttq'  expression 'faire' instructions 'fait'
 lecture: 'lire' '(' ident  ( ',' ident  )* ')' 
   ;
   
-ecriture: 'ecrire' '(' expression  ( ',' expression  )* ')'
+ecriture: 'ecrire' '(' expression {PtGen.pt(90);} ( ',' expression  )* {PtGen.pt(90);} ')'
    ;
   
 affouappel: 
-  ident  (    ':=' expression 
+  ident  {PtGen.pt(11);} (    ':=' expression {PtGen.pt(12);}
             |   (effixes (effmods)?)?  
            )
   ;
@@ -154,12 +154,12 @@ exp2  : 'non' exp2 {PtGen.pt(61);} {PtGen.pt(68);}
   ;
   
 exp3  : exp4 
-  ( '='  {PtGen.pt(61);} exp4 {PtGen.pt(61);}{PtGen.pt(69);}
-  | '<>' {PtGen.pt(61);} exp4 {PtGen.pt(61);}{PtGen.pt(70);}
-  | '>'  {PtGen.pt(61);} exp4 {PtGen.pt(61);}{PtGen.pt(71);}
-  | '>=' {PtGen.pt(61);} exp4 {PtGen.pt(61);}{PtGen.pt(72);}
-  | '<'  {PtGen.pt(61);} exp4 {PtGen.pt(61);}{PtGen.pt(73);}
-  | '<=' {PtGen.pt(61);} exp4  {PtGen.pt(61);} {PtGen.pt(74);}
+  ( '='  {PtGen.pt(60);} exp4 {PtGen.pt(60);}{PtGen.pt(69);}
+  | '<>' {PtGen.pt(60);} exp4 {PtGen.pt(60);}{PtGen.pt(70);}
+  | '>'  {PtGen.pt(60);} exp4 {PtGen.pt(60);}{PtGen.pt(71);}
+  | '>=' {PtGen.pt(60);} exp4 {PtGen.pt(60);}{PtGen.pt(72);}
+  | '<'  {PtGen.pt(60);} exp4 {PtGen.pt(60);}{PtGen.pt(73);}
+  | '<=' {PtGen.pt(60);} exp4  {PtGen.pt(60);} {PtGen.pt(74);}
   ) ?
   ;
   
@@ -175,8 +175,8 @@ exp5  : primaire
         )*
   ;
   
-primaire: valeur
-  | ident
+primaire: valeur {PtGen.pt(13);}
+  | ident {PtGen.pt(14);}
   | '(' expression ')'
   ;
   

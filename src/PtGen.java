@@ -114,7 +114,7 @@ public class PtGen {
 
 	// MERCI de renseigner ici un nom pour le trinome, constitue EXCLUSIVEMENT DE
 	// LETTRES
-	public static final String trinome = "William STEPHAN Evenn Resnais Badara TALL";
+	public static final String TRINOME = "William STEPHAN Evenn Resnais Badara TALL";
 
 	private static int tCour; // type de l'expression compilee
 	private static int vCour; // sert uniquement lors de la compilation d'une valeur (entiere ou boolenne)
@@ -127,7 +127,7 @@ public class PtGen {
 	// it = indice de remplissage de tabSymb
 	// bc = bloc courant (=1 si le bloc courant est le programme principal)
 	// info = adresse d'execution du code objet associe a l'ident courant
-	private static int it, bc, info, code;
+	private static int it, bc, info, code, cat, type, index;
 
 	/**
 	 * utilitaire de recherche de l'ident courant (ayant pour code
@@ -198,6 +198,9 @@ public class PtGen {
 		bc = 1; // bloc courant (=1 si le bloc courant est le programme principal)
 		info = 0; // adresse d'execution du code objet associe a l'ident courant
 		code = 0; // code de l'ident courant
+		cat = 0; // categorie de l'ident courant
+		type = 0; // type de l'ident courant
+		index = 0; // indice de l'ident courant dans tabSymb
 		// pile des reprises pour compilation des branchements en avant
 		pileRep = new TPileRep();
 		// programme objet = code Mapile de l'unite en cours de compilation
@@ -231,11 +234,11 @@ public class PtGen {
 
 			////// DECLARATION ///////
 			case 1:
-				// lecture d'un ident pour une constante
+				// lecture d'un ident pour déclaration d'une constante
 				code = UtilLex.numIdCourant;
 				break;
 			case 2:
-				// lecture d'un ident pour une variable
+				// lecture d'un ident pour déclaration d'une variable
 				code = UtilLex.numIdCourant;
 				// Recherche de l'ident dans la table des symboles
 				if (presentIdent(1) == 0) {
@@ -302,17 +305,83 @@ public class PtGen {
 					UtilLex.messErr("Constante : " + UtilLex.chaineIdent(UtilLex.numIdCourant) + " déjà déclarée");
 				}
 				break;
-
-			case 53: // Reserver des espaces dans la pile pour les variables
-				// On génère le code pour réserver des espaces dans la pile
+			case 10:
+				// Uniquement si programme
 				po.produire(RESERVER);
 				po.produire(info);
-				// On met à jour le nombre de variables déclarées dans le bloc courant
-				desc.setTailleGlobaux(info);
 				break;
-			case 54: // Empiler une variable
+			case 11: // lecture d'un ident pour affectation (ex : foo := 50)
+				index = presentIdent(1);
+				if (index == 0) {
+					UtilLex.messErr("Identifiant " + UtilLex.chaineIdent(UtilLex.numIdCourant) + " non déclaré");
+				}
+				// on regarde dans la table des symbole si l'ident est une constante
+				if (tabSymb[index].categorie == CONSTANTE) {
+					UtilLex.messErr("Affectation impossible sur une constante");
+				}
+				tCour = tabSymb[index].type;
+				// on recupere la categorie de l'ident et on le sauvegarde dans type pour après
+				// check le type pour l'affectation
+				type = tabSymb[index].type;
+				// on recupere la categorie de l'ident
+				cat = tabSymb[index].categorie;
+				break;
+			case 12: // affectation d'un ident
+				// on verifie le type de l'expression
+				if (type == ENT) {
+					verifEnt();
+				} else {
+					verifBool();
+				}
+				// on verifie si l'ident est une variable locale ou globale
+				switch (cat) {
+					case VARLOCALE:
+						po.produire(AFFECTERL);
+						po.produire(tabSymb[index].info);
+						po.produire(0); // Si c'est une variable locale, on empile 0
+						break;
+					case VARGLOBALE:
+						po.produire(AFFECTERG);
+						po.produire(tabSymb[index].info);
+						break;
+					default:
+						UtilLex.messErr("Erreur de catégorie");
+						break;
+				}
+				break;
+			case 13: // Empiler une valeur entière ou booléenne
 				po.produire(EMPILER);
 				po.produire(info);
+				break;
+			case 14: // lecture d'un ident dans l'expression d'une affectation (ex : variable := foo)
+				index = presentIdent(1);
+				if (index == 0) {
+					UtilLex.messErr("Identifiant " + UtilLex.chaineIdent(UtilLex.numIdCourant) + " non déclaré");
+				}
+				// on met à jour le type de l'expression courante
+				tCour = tabSymb[index].type;
+				// on regarde dans la table des symbole si l'ident est une constante
+				switch (tabSymb[index].categorie) {
+					case CONSTANTE:
+						// on empile la valeur de la constante
+						po.produire(EMPILER);
+						po.produire(tabSymb[index].info);
+						break;
+					case VARLOCALE:
+						// on empile la valeur de la variable locale
+						po.produire(CONTENUL);
+						po.produire(tabSymb[index].info);
+						po.produire(0); // Si c'est une variable locale, on empile 0
+						break;
+					case VARGLOBALE:
+						// on empile la valeur de la variable globale
+						po.produire(CONTENUG);
+						po.produire(tabSymb[index].info);
+						break;
+					default:
+						UtilLex.messErr("Erreur de catégorie");
+						break;
+				}
 				break;
 			//////// EXPRESSION ////////
 			case 60: // Vérifier que l'expression est de type entier
@@ -335,32 +404,52 @@ public class PtGen {
 				break;
 			case 66: // produire un OU
 				po.produire(OU);
+				tCour = BOOL;
 				break;
 			case 67: // produire un ET
 				po.produire(ET);
+				tCour = BOOL;
 				break;
 			case 68: // produire un NON
 				po.produire(NON);
+				tCour = BOOL;
 				break;
 			case 69: // produire un EGAL
 				po.produire(EG);
+				tCour = BOOL;
 				break;
 			case 70: // produire un DIFF
 				po.produire(DIFF);
+				tCour = BOOL;
 				break;
 			case 71: // produire un SUP
 				po.produire(SUP);
+				tCour = BOOL;
 				break;
 			case 72: // produire un SUPEG
 				po.produire(SUPEG);
+				tCour = BOOL;
 				break;
 			case 73: // produire un INF
 				po.produire(INF);
+				tCour = BOOL;
 				break;
 			case 74: // produire un INFEG
 				po.produire(INFEG);
+				tCour = BOOL;
 				break;
-
+			case 90: // Ecriture
+				index = presentIdent(1);
+				if (index == 0) {
+					UtilLex.messErr("Identifiant " + UtilLex.chaineIdent(UtilLex.numIdCourant) + " non déclaré");
+				}
+				// on regarde dans la table des symbole si l'ident est un entier ou un booléen
+				if (tabSymb[index].type == ENT) {
+					po.produire(ECRENT);
+				} else {
+					po.produire(ECRBOOL);
+				}
+				break;
 			case 100: // Debut d'un bloc
 				// On incrémente le bloc courant
 				bc++;
