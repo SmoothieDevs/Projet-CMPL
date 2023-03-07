@@ -5,7 +5,6 @@ var ent i,j;
     bool b1,b2,b3;
 
 debut
-
 	i:= (max-min) div 2;
 	b1:= oui et nenni;
 	b2:= non b1 et (oui ou nenni);
