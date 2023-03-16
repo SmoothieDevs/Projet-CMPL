@@ -47,7 +47,6 @@ class projet {
 			System.err.println("IO exception: " + exc);
 		} 
 		// try	
-	
 	} // UneCompilation
 	
 	
