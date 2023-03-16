@@ -1,0 +1,33 @@
+FICHIER TestsProjet\Test.gen : 
+
+   1  reserver        6
+   3  contenug        0
+   5  bsifaux        12
+   7  empiler         0
+   9  ecrbool   
+  10  bincond        55
+  12  contenug        1
+  14  bsifaux        48
+  16  contenug        2
+  18  bsifaux        25
+  20  empiler         0
+  22  ecrbool   
+  23  bincond        46
+  25  contenug        3
+  27  bsifaux        34
+  29  empiler         0
+  31  ecrbool   
+  32  bincond        46
+  34  contenug        4
+  36  bsifaux        43
+  38  empiler         0
+  40  ecrbool   
+  41  bincond        46
+  43  empiler         0
+  45  ecrbool   
+  46  bincond        55
+  48  contenug        5
+  50  bsifaux        55
+  52  empiler         0
+  54  ecrbool   
+  55  arret     
