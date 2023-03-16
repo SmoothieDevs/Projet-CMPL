@@ -52,7 +52,7 @@ class projet {
 	
 	
 	public static void main(String [] args) {
-		System.out.println("PROJET DE COMPILATION version : " + PtGen.TRINOME);
+		System.out.println("PROJET DE COMPILATION version : " + PtGen.trinome);
 		System.out.println("----------------------------------------");
 		System.out.println();
 		
@@ -72,6 +72,6 @@ class projet {
 		    System.out.println();
 		}
 		while (!UtilLex.nomSource.equals("")); 	
-		System.out.println("\n \n Merci pour votre patience, " + PtGen.TRINOME + ", et a bientot !!!");	
+		System.out.println("\n \n Merci pour votre patience, " + PtGen.trinome + ", et a bientot !!!");	
 	} // main
 } // projet

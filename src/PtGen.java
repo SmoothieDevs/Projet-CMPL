@@ -114,7 +114,7 @@ public class PtGen {
 
 	// MERCI de renseigner ici un nom pour le trinome, constitue EXCLUSIVEMENT DE
 	// LETTRES
-	public static final String TRINOME = "William STEPHAN Evenn Resnais Badara TALL";
+	public static final String trinome = "William STEPHAN Evenn Resnais Badara TALL";
 
 	private static int tCour; // type de l'expression compilee
 	private static int vCour; // sert uniquement lors de la compilation d'une valeur (entiere ou boolenne)
@@ -438,7 +438,45 @@ public class PtGen {
 				tCour = BOOL;
 				break;
 			//////// INSTRUCTION ////////
-			case 80: // Après l'expression du si ou après l'expression du ttq
+			case 75: //lecture d'un case
+				verifBool();
+				po.produire(BSIFAUX);
+				po.produire(0); // on sauvegarde l'adresse de l'instruction à modifier
+				// on empile l'adresse de l'instruction à modifier
+				pileRep.empiler(po.getIpo());
+				pileRep.toString();
+				break;
+			case 76://fin de l'instruction d'un case
+				po.produire(BINCOND);
+				po.modifier(pileRep.depiler(), po.getIpo()+2);
+				po.produire(pileRep.depiler()); // on sauvegarde l'adresse de l'instruction à modifier
+				pileRep.empiler(po.getIpo());
+				pileRep.toString();
+				break;
+			case 77: //fin cond
+				po.modifier(pileRep.depiler(), po.getIpo()+1);
+				int lastIncond = pileRep.depiler();
+				//parcourir la pile pour modifier les adresses des instructions à modifier
+				while(po.getElt(lastIncond) != 0){
+					int tmp = po.getElt(lastIncond);
+					po.modifier(lastIncond, po.getIpo()+1);
+					lastIncond = tmp;
+				}
+				po.modifier(lastIncond, po.getIpo()+1);
+				break;
+			case 78: //cond
+				pileRep.empiler(0);
+				pileRep.toString();
+				break;
+			case 79: //autre
+				po.produire(BINCOND);
+				po.produire(0); // on sauvegarde l'adresse de l'instruction à modifier
+				po.modifier(pileRep.depiler(), po.getIpo() + 1);
+				// on empile l'adresse de l'instruction à modifier
+				pileRep.empiler(po.getIpo());
+				pileRep.toString();
+				break;
+			case 80: // Après l'expression du si ou après l'expression du ttq ou après l'expression du cond
 				// on verifie que l'expression est de type booléen
 				verifBool();
 				po.produire(BSIFAUX);
@@ -449,22 +487,22 @@ public class PtGen {
 			case 81: // Sinon
 				po.produire(BINCOND);
 				po.produire(0); // on sauvegarde l'adresse de l'instruction à modifier
-				po.modifier(pileRep.depiler(), po.getIpo()+1);
+				po.modifier(pileRep.depiler(), po.getIpo() + 1);
 				// on empile l'adresse de l'instruction à modifier
 				pileRep.empiler(po.getIpo());
 				break;
 			case 82: // finSi
-				po.modifier(pileRep.depiler(), po.getIpo()+1);
+				po.modifier(pileRep.depiler(), po.getIpo() + 1);
 				break;
 			case 83: // TantQue
 				pileRep.empiler(po.getIpo());
 				break;
 			case 84: // Faits
-				po.modifier(pileRep.depiler(), po.getIpo()+1);
+				po.modifier(pileRep.depiler(), po.getIpo() + 1);
 				po.produire(BINCOND);
-				po.produire(pileRep.depiler()); 
+				po.produire(pileRep.depiler());
 				break;
-			case 89: //Lecture 
+			case 89: // Lecture
 				index = presentIdent(1);
 				if (index == 0) {
 					UtilLex.messErr("Identifiant " + UtilLex.chaineIdent(UtilLex.numIdCourant) + " non déclaré");
