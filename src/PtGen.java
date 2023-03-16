@@ -350,7 +350,7 @@ public class PtGen {
 				break;
 			case 13: // Empiler une valeur entière ou booléenne (ex : 50 ou true)
 				po.produire(EMPILER);
-				po.produire(info);
+				po.produire(vCour);
 				break;
 			case 14: // lecture d'un ident dans l'expression d'une affectation (ex : variable := foo)
 				int indexExpression = presentIdent(1);
@@ -495,11 +495,11 @@ public class PtGen {
 				po.modifier(pileRep.depiler(), po.getIpo() + 1);
 				break;
 			case 83: // TantQue
-				pileRep.empiler(po.getIpo());
+				pileRep.empiler(po.getIpo()+1);
 				break;
 			case 84: // Faits
-				po.modifier(pileRep.depiler(), po.getIpo() + 1);
 				po.produire(BINCOND);
+				po.modifier(pileRep.depiler(), po.getIpo() + 2);
 				po.produire(pileRep.depiler());
 				break;
 			case 89: // Lecture
@@ -539,15 +539,16 @@ public class PtGen {
 				}
 				break;
 			case 90: // Ecriture
-				index = presentIdent(1);
-				if (index == 0) {
-					UtilLex.messErr("Identifiant " + UtilLex.chaineIdent(UtilLex.numIdCourant) + " non déclaré");
-				}
-				// on regarde dans la table des symbole si l'ident est un entier ou un booléen
-				if (tabSymb[index].type == ENT) {
-					po.produire(ECRENT);
-				} else {
-					po.produire(ECRBOOL);
+				switch (tCour) {
+					case ENT:
+						po.produire(ECRENT);
+						break;
+					case BOOL:
+						po.produire(ECRBOOL);
+						break;
+					default:
+						UtilLex.messErr("Erreur de type");
+						break;
 				}
 				break;
 			case 100: // Debut d'un bloc
