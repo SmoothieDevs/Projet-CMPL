@@ -127,7 +127,7 @@ public class PtGen {
 	// it = indice de remplissage de tabSymb
 	// bc = bloc courant (=1 si le bloc courant est le programme principal)
 	// info = adresse d'execution du code objet associe a l'ident courant
-	private static int it, bc, info, code, cat, type, index, infoProc,nbParam,indexProc;
+	private static int it, bc, info, code, cat, type, index, infoProc, nbParam, indexProc;
 
 	/**
 	 * utilitaire de recherche de l'ident courant (ayant pour code
@@ -309,11 +309,14 @@ public class PtGen {
 				}
 				break;
 			case 10:
-				// Uniquement si programme
 				po.produire(RESERVER);
-				po.produire(info);
+				if (bc > 1) {
+					po.produire(infoProc);
+				} else {
+					po.produire(info);
+				}
 				break;
-			case 11: // lecture d'un ident pour affectation (ex : foo := 50) 
+			case 11: // lecture d'un ident pour affectation (ex : foo := 50)
 				index = presentIdent(1);
 				if (index == 0) {
 					UtilLex.messErr("Identifiant " + UtilLex.chaineIdent(UtilLex.numIdCourant) + " non déclaré");
@@ -520,7 +523,9 @@ public class PtGen {
 				po.produire(pileRep.depiler());
 				break;
 			case 89: // Lecture
+				afftabSymb();
 				index = presentIdent(1);
+				System.out.println(index);
 				if (index == 0) {
 					UtilLex.messErr("Identifiant " + UtilLex.chaineIdent(UtilLex.numIdCourant) + " non déclaré");
 				}
@@ -550,6 +555,11 @@ public class PtGen {
 						po.produire(AFFECTERG);
 						po.produire(tabSymb[index].info);
 						break;
+					case PARAMMOD:
+						po.produire(AFFECTERL);
+						po.produire(tabSymb[index].info);
+						po.produire(1);
+						break;
 					default:
 						UtilLex.messErr("Erreur de catégorie");
 						break;
@@ -568,31 +578,72 @@ public class PtGen {
 						break;
 				}
 				break;
-			case 98: //Lecture d'un ident pour appel de procédure
-				// on regarde dans la table des symbole si l'ident est déclaré et est une procédure
+			case 96: // Paramètre Fixe
+				nbParam++;
+				break;
+			case 97: // début corps
+
+			case 98:
 				indexProc = presentIdent(1);
-				if (indexProc > 0 && tabSymb[indexProc].categorie == PROC) {
-					UtilLex.messErr("Identifiant " + UtilLex.chaineIdent(UtilLex.numIdCourant) + " déjà déclaré comme procédure");
+				if (indexProc == 0) {
+					UtilLex.messErr("Identifiant " + UtilLex.chaineIdent(UtilLex.numIdCourant) + " non déclaré");
 				}
+				nbParam = 0;
 				break;
 			case 99: // Appel de procédure
+				if (nbParam != tabSymb[indexProc + 1].info) {
+					UtilLex.messErr("Erreur : nombre de paramètres incorrect");
+				}
 				po.produire(APPEL);
 				po.produire(tabSymb[indexProc].info);
+				po.produire(tabSymb[indexProc + 1].info);
 				break;
-			case 100: 
+			case 100: // Lecture un ident pour appel de procedure
+				// on regarde dans la table des symbole si l'ident est déclaré
+				index = presentIdent(bc);
+				if (index == 0) {
+					UtilLex.messErr("Identifiant " + UtilLex.chaineIdent(UtilLex.numIdCourant) + " non déclaré");
+				}
+				nbParam++;
+				// on regarde dans la table des symbole si l'ident est une constante
+				switch (tabSymb[index].categorie) {
+					case CONSTANTE:
+						UtilLex.messErr("Erreur : on ne peut pas affecter une valeur à une constante");
+						break;
+					case PARAMFIXE:
+						UtilLex.messErr("Erreur : on ne peut pas affecter une valeur à un paramètre fixe");
+						break;
+					case VARLOCALE:
+						po.produire(EMPILERADL);
+						po.produire(tabSymb[index].info);
+						po.produire(0); // Si c'est une variable locale, on empile 0
+						break;
+					case VARGLOBALE:
+						po.produire(EMPILERADG);
+						po.produire(tabSymb[index].info);
+						break;
+					case PARAMMOD:
+						po.produire(EMPILERADL);
+						po.produire(tabSymb[index].info);
+						po.produire(1); // Si c'est un paramètre modifiable, on empile 1
+						break;
+					default:
+						UtilLex.messErr("Erreur de catégorie");
+						break;
+				}
 				break;
 			case 101: // Fin d'un bloc de procédure
-				for (int i = it; i > bc; i--) {
-					if(tabSymb[i].categorie == VARLOCALE ||tabSymb[i].categorie == CONSTANTE)
-						it--;
-					else if(tabSymb[i].categorie == PARAMFIXE || tabSymb[i].categorie == PARAMMOD){
-						tabSymb[i].code = -1;
-					}
+				// Suppression des variables locales
+				it = bc + nbParam-1;
+
+				// Mise a -1 des indents de parametres
+				for (int i = it ; i >= bc ; i--) {
+					tabSymb[i].code = -1;
 				}
-				bc=1; // on remet le compteur de bloc à 1 (pour le main)
+				bc = 1; // on remet le compteur de bloc à 1 (pour le main)
 				po.produire(RETOUR);
 				po.produire(nbParam);
-			break;
+				break;
 			case 102: // BINCOND pour aller directement au main
 				po.produire(BINCOND);
 				po.produire(0); // on sauvegarde l'adresse de l'instruction à modifier
@@ -618,7 +669,7 @@ public class PtGen {
 
 			case 105: // Lecture d'un parametre fixe
 				index = presentIdent(bc);
-				if (index > 0) {
+				if (index > 0 && tabSymb[index].categorie == PARAMFIXE) {
 					UtilLex.messErr("Erreur : l'identifiant " + UtilLex.chaineIdent(UtilLex.numIdCourant)
 							+ " est déjà déclaré");
 				}
@@ -629,7 +680,7 @@ public class PtGen {
 				break;
 			case 106:
 				index = presentIdent(bc);
-				if (index > 0) {
+				if (index > 0 && tabSymb[index].categorie == PARAMMOD) {
 					UtilLex.messErr("Erreur : l'identifiant " + UtilLex.chaineIdent(UtilLex.numIdCourant)
 							+ " est déjà déclaré");
 				}
@@ -641,8 +692,10 @@ public class PtGen {
 			case 107: // Fin de la déclaration des paramètres
 				// On met à jour l'adresse d'éxécution des paramètres de la procédure
 				tabSymb[pileRep.depiler()].info = infoProc;
-				bc = it - (nbParam - 1); // On met à jour le bc pour les paramètres (infosProc - 1 car on doit retrourner au premeir paramètre)
-				infoProc += 2; //On ajoute 2 pour laisser de la place pour le retour de la procédure pour MAPILE
+				bc = it - (nbParam - 1); // On met à jour le bc pour les paramètres (infosProc - 1 car on doit
+											// retrourner au premeir paramètre)
+				infoProc += 2; // On ajoute 2 pour laisser de la place pour le retour de la procédure pour
+								// MAPILE
 				break;
 			case 255:
 				po.produire(ARRET);

@@ -10,4 +10,5 @@ proc ajout1 fixe (ent y) mod (bool z)
 
 debut
     b1:=vrai;
+    ajout1(10)(b1);
 fin

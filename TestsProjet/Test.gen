@@ -11,5 +11,7 @@ FICHIER TestsProjet\Test.gen :
   19  retour          2
   21  empiler         1
   23  affecterg       0
-  25  retour          2
-  27  arret     
+  25  empiler        10
+  27  empileradg      0
+  29  appel           2  30
+  32  empiler        24
