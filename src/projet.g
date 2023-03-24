@@ -84,7 +84,7 @@ ptvg  : ';'
   | 
   ;
   
-corps : 'debut' {PtGen.pt(100);} instructions 'fin' {PtGen.pt(101);}
+corps : 'debut' instructions 'fin'
   ;
   
 parfixe: 'fixe' '(' pf( ';' pf )* ')'
@@ -133,14 +133,14 @@ ecriture: 'ecrire' '(' expression {PtGen.pt(90);} ( ',' expression {PtGen.pt(90)
   
 affouappel: 
   ident   ( {PtGen.pt(11);}   ':=' expression {PtGen.pt(12);}
-            | {PtGen.pt(98);}  (effixes (effmods)?)? {PtGen.pt(99);}  
+            | {PtGen.pt(98);} (effixes (effmods)?)? {PtGen.pt(99);}  
            )
   ;
   
-effixes : '(' (expression pt (',' expression  )*)? ')'
+effixes : '(' (expression {PtGen.pt(96);} (',' expression {PtGen.pt(96);} )*)? ')'
   ;
   
-effmods :'(' (ident  (',' ident  )*)? ')'
+effmods :'(' (ident {PtGen.pt(100);} (',' ident {PtGen.pt(100);} )*)? ')'
   ; 
   
 expression: (exp1) ('ou'{PtGen.pt(61);}  exp1 {PtGen.pt(61);}{PtGen.pt(66);} )*
