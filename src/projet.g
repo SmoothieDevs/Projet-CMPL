@@ -74,29 +74,29 @@ type  : 'ent' {PtGen.pt(7);}
   |     'bool' {PtGen.pt(8);}
   ;
   
-decprocs: (decproc ptvg)+
+decprocs: {PtGen.pt(102);} (decproc ptvg)+ {PtGen.pt(103);}
   ;
   
-decproc :  'proc'  ident  parfixe? parmod? consts? vars? corps 
+decproc :  'proc'  ident {PtGen.pt(104);} parfixe? parmod? {PtGen.pt(107);} consts? vars? corps {PtGen.pt(101);}
   ;
   
 ptvg  : ';'
   | 
   ;
   
-corps : 'debut' {PtGen.pt(100);} instructions 'fin' {PtGen.pt(101);}
+corps : 'debut' instructions 'fin'
   ;
   
-parfixe: 'fixe' '(' pf ( ';' pf)* ')'
+parfixe: 'fixe' '(' pf( ';' pf )* ')'
   ;
   
-pf  : type ident  ( ',' ident  )*  
+pf  : type ident {PtGen.pt(105);} ( ',' ident {PtGen.pt(105);} )*  
   ;
 
 parmod  : 'mod' '(' pm ( ';' pm)* ')'
   ;
   
-pm  : type ident  ( ',' ident  )*
+pm  : type ident {PtGen.pt(106);}  ( ',' ident {PtGen.pt(106);}  )*
   ;
   
 instructions
@@ -132,15 +132,15 @@ ecriture: 'ecrire' '(' expression {PtGen.pt(90);} ( ',' expression {PtGen.pt(90)
    ;
   
 affouappel: 
-  ident  {PtGen.pt(11);} (    ':=' expression {PtGen.pt(12);}
-            |   (effixes (effmods)?)?  
+  ident   ( {PtGen.pt(11);}   ':=' expression {PtGen.pt(12);}
+            | {PtGen.pt(98);} (effixes (effmods)?)? {PtGen.pt(99);}  
            )
   ;
   
-effixes : '(' (expression  (',' expression  )*)? ')'
+effixes : '(' (expression {PtGen.pt(96);} (',' expression {PtGen.pt(96);} )*)? ')'
   ;
   
-effmods :'(' (ident  (',' ident  )*)? ')'
+effmods :'(' (ident {PtGen.pt(100);} (',' ident {PtGen.pt(100);} )*)? ')'
   ; 
   
 expression: (exp1) ('ou'{PtGen.pt(61);}  exp1 {PtGen.pt(61);}{PtGen.pt(66);} )*
@@ -217,7 +217,3 @@ COMMENT
 // commentaires sur plusieurs lignes
 ML_COMMENT    :   '/*' (options {greedy=false;} : .)* '*/' {$channel=HIDDEN;}
     ;	   
-
-
-
-	   

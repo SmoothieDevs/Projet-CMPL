@@ -1,14 +1,14 @@
 programme condition: 
-var bool b1,b2,b3,b4,b5,b6;
+var bool b1;
+
+proc ajout1 fixe (ent y) mod (bool z)
+    var ent i;
+	debut
+		i:=0;
+        z:=vrai;
+	fin;
+
 debut
-    cond
-        b1: ecrire(1),
-        b2: cond
-                b3 : ecrire(2),
-                b4: ecrire(3),
-                b5: ecrire(4)
-                aut ecrire(5) 
-            fcond,
-        b6:ecrire(6)
-    fcond;
+    b1:=vrai;
+    ajout1(10)(b1);
 fin
