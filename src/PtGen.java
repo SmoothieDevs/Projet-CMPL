@@ -58,6 +58,10 @@ public class PtGen {
 			// valeurs possible du vecteur de translation
 			TRANSDON = 1, TRANSCODE = 2, REFEXT = 3;
 
+	private static final String
+	// Valeur pour le descripteur
+	MODULE = "module", PROGRAMME = "programme";
+
 	// utilitaires de controle de type
 	// -------------------------------
 	/**
@@ -127,7 +131,7 @@ public class PtGen {
 	// it = indice de remplissage de tabSymb
 	// bc = bloc courant (=1 si le bloc courant est le programme principal)
 	// info = adresse d'execution du code objet associe a l'ident courant
-	private static int it, bc, info, code, cat, type, index, infoProc, nbParam, indexProc;
+	private static int it, bc, info, code, cat, type, index, infoProc, nbParam, indexProc, nbDef;
 
 	/**
 	 * utilitaire de recherche de l'ident courant (ayant pour code
@@ -197,14 +201,19 @@ public class PtGen {
 		it = 0; // indice de remplissage de tabSymb
 		bc = 1; // bloc courant (=1 si le bloc courant est le programme principal)
 		info = 0; // adresse d'execution du code objet associe a l'ident courant
-		infoProc = 0; // adresse d'execution du code objet associe a l'ident courant dans une
-						// procedure
+
 		nbParam = 0; // nombre de parametre d'une procedure
 		code = 0; // code de l'ident courant (UtilLex.numIdCourant)
 		cat = 0; // categorie de l'ident courant
 		type = 0; // type de l'ident courant
 		index = 0; // indice de l'ident courant dans tabSymb
+
+		// PROCEDURE
 		indexProc = 0; // indice de l'ident courant dans tabSymb dans une procedure
+		infoProc = 0; // adresse d'execution du code objet associe a l'ident courant dans une
+						// procedure
+		// MODULE
+		nbDef = 0; // nombre de definition d'une procedure dans un module
 		// pile des reprises pour compilation des branchements en avant
 		pileRep = new TPileRep();
 		// programme objet = code Mapile de l'unite en cours de compilation
@@ -309,10 +318,11 @@ public class PtGen {
 				}
 				break;
 			case 10:
-				po.produire(RESERVER);
-				if (bc > 1) {
+				if (bc > 1) { // produire RESERVER infoProc que si on est dans une procedure peut importe l'unite
+					po.produire(RESERVER);
 					po.produire(infoProc);
-				} else {
+				} else if (desc.getUnite().equals(PROGRAMME)) { // produire RESERVER info que si on est dans un programme
+					po.produire(RESERVER);
 					po.produire(info);
 				}
 				break;
@@ -634,10 +644,10 @@ public class PtGen {
 				break;
 			case 101: // Fin d'un bloc de procédure
 				// Suppression des variables locales
-				it = bc + nbParam-1;
+				it = bc + nbParam - 1;
 
 				// Mise a -1 des indents de parametres
-				for (int i = it ; i >= bc ; i--) {
+				for (int i = it; i >= bc; i--) {
 					tabSymb[i].code = -1;
 				}
 				bc = 1; // on remet le compteur de bloc à 1 (pour le main)
@@ -645,20 +655,26 @@ public class PtGen {
 				po.produire(nbParam);
 				break;
 			case 102: // BINCOND pour aller directement au main
-				po.produire(BINCOND);
-				po.produire(0); // on sauvegarde l'adresse de l'instruction à modifier
-				pileRep.empiler(po.getIpo());
+				if (desc.getUnite().equals(PROGRAMME)) {
+					po.produire(BINCOND);
+					po.produire(0); // on sauvegarde l'adresse de l'instruction à modifier
+					pileRep.empiler(po.getIpo());
+				}
 				break;
 			case 103: // fin de la déclaration des procs, on modifie le BINCOND pour aller au main
-				po.modifier(pileRep.depiler(), po.getIpo() + 1);
+				if (desc.getUnite().equals(PROGRAMME)) {
+					po.modifier(pileRep.depiler(), po.getIpo() + 1);
+				}
 				break;
 			case 104: // Déclaration d'une Procedure
+				// On regarde si la procédure est déjà déclarée
 				index = presentIdent(1);
 				if (index != 0 && tabSymb[index].categorie == PROC) {
 					UtilLex.messErr("Erreur : la procédure " + UtilLex.chaineIdent(UtilLex.numIdCourant)
 							+ " est déjà déclarée");
 					break;
 				}
+				nbDef++; // On incrémente le nombre de procédure déclarées
 				// On ajoute la procédure dans la table des symboles
 				placeIdent(UtilLex.numIdCourant, PROC, NEUTRE, po.getIpo());
 				placeIdent(-1, PRIVEE, NEUTRE, 0);
@@ -697,8 +713,32 @@ public class PtGen {
 				infoProc += 2; // On ajoute 2 pour laisser de la place pour le retour de la procédure pour
 								// MAPILE
 				break;
+			case 110:
+				desc.setUnite(PROGRAMME);
+				break;
+			case 111:
+				desc.setUnite(MODULE);
+				break;
+			case 112: // Def de procedure
+				desc.ajoutDef(UtilLex.chaineIdent(UtilLex.numIdCourant));
+				break;
+			case 113:
+				desc.setTailleCode(po.getIpo());
+				break;
+			case 254:
+				// On vérifie que le nombre de définitions correspond au nombre de procédures
+				if (nbDef != desc.getNbDef()) {
+					UtilLex.messErr("Erreur : le nombre de définitions ne correspond pas au nombre de procédures");
+				}
+
+				System.out.println(desc.toString());
+				afftabSymb(); // affichage de la table des symboles en fin de compilation
+				po.constGen();
+				po.constObj();
+				break;
 			case 255:
 				po.produire(ARRET);
+				System.out.println(desc.toString());
 				afftabSymb(); // affichage de la table des symboles en fin de compilation
 				po.constGen();
 				po.constObj();
