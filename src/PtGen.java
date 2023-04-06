@@ -131,7 +131,7 @@ public class PtGen {
 	// it = indice de remplissage de tabSymb
 	// bc = bloc courant (=1 si le bloc courant est le programme principal)
 	// info = adresse d'execution du code objet associe a l'ident courant
-	private static int it, bc, info, code, cat, type, index, infoProc, nbParam, indexProc, nbDef;
+	private static int it, bc, info, code, cat, type, index, infoProc, nbParam, nbVarL, indexProc, nbParamAppel, nbDef;
 
 	/**
 	 * utilitaire de recherche de l'ident courant (ayant pour code
@@ -212,6 +212,8 @@ public class PtGen {
 		indexProc = 0; // indice de l'ident courant dans tabSymb dans une procedure
 		infoProc = 0; // adresse d'execution du code objet associe a l'ident courant dans une
 						// procedure
+		nbVarL = 0; // nombre de variable locale d'une procedure
+		nbParamAppel = 0; // nombre de parametre d'un appel de procedure
 		// MODULE
 		nbDef = 0; // nombre de definition d'une procedure dans un module
 		// pile des reprises pour compilation des branchements en avant
@@ -236,10 +238,6 @@ public class PtGen {
 	 * @param numGen : numero du point de generation a executer
 	 */
 	public static void pt(int numGen) {
-		// A RETIRER POUR LE RENDU :
-		// Afficher le numero du point de generation a chaque appel de pt pour le
-		// debuggage
-		System.out.print("NumGen: " + numGen + "\n");
 		switch (numGen) {
 			case 0:
 				initialisations();
@@ -260,7 +258,9 @@ public class PtGen {
 						// On place l'ident dans la table des symboles
 						placeIdent(UtilLex.numIdCourant, VARLOCALE, tCour, infoProc);
 						// On incrémente l'adresse d'exécution
-						info++;
+						infoProc++;
+						// On incrémente le nombre de variable locale
+						nbVarL++;
 					} else {
 						// Si on est dans le programme principal
 						// On place l'ident dans la table des symboles
@@ -318,10 +318,12 @@ public class PtGen {
 				}
 				break;
 			case 10:
-				if (bc > 1) { // produire RESERVER infoProc que si on est dans une procedure peut importe l'unite
+				if (bc > 1) { // produire RESERVER infoProc que si on est dans une procedure peut importe
+								// l'unite
 					po.produire(RESERVER);
-					po.produire(infoProc);
-				} else if (desc.getUnite().equals(PROGRAMME)) { // produire RESERVER info que si on est dans un programme
+					po.produire(nbVarL);
+				} else if (desc.getUnite().equals(PROGRAMME)) { // produire RESERVER info que si on est dans un
+																// programme
 					po.produire(RESERVER);
 					po.produire(info);
 				}
@@ -589,32 +591,30 @@ public class PtGen {
 				}
 				break;
 			case 96: // Paramètre Fixe
-				nbParam++;
+				nbParamAppel++;
 				break;
-			case 97: // début corps
-
-			case 98:
+			case 98: // Appel de procédure
 				indexProc = presentIdent(1);
 				if (indexProc == 0) {
-					UtilLex.messErr("Identifiant " + UtilLex.chaineIdent(UtilLex.numIdCourant) + " non déclaré");
+					UtilLex.messErr("Procédure " + UtilLex.chaineIdent(UtilLex.numIdCourant) + " non déclaré");
 				}
-				nbParam = 0;
+				nbParamAppel = 0;
 				break;
-			case 99: // Appel de procédure
-				if (nbParam != tabSymb[indexProc + 1].info) {
+			case 99: // Appel de procédure (production)
+				if (nbParamAppel != tabSymb[indexProc + 1].info) {
 					UtilLex.messErr("Erreur : nombre de paramètres incorrect");
 				}
 				po.produire(APPEL);
-				po.produire(tabSymb[indexProc].info);
+				po.produire(tabSymb[indexProc].info + 1); // + 1 car le code commence après le nom de la procédure
 				po.produire(tabSymb[indexProc + 1].info);
 				break;
-			case 100: // Lecture un ident pour appel de procedure
+			case 100: // Lecture un ident pour appel de procedure PARAMMOD
 				// on regarde dans la table des symbole si l'ident est déclaré
 				index = presentIdent(bc);
 				if (index == 0) {
 					UtilLex.messErr("Identifiant " + UtilLex.chaineIdent(UtilLex.numIdCourant) + " non déclaré");
 				}
-				nbParam++;
+				nbParamAppel++;
 				// on regarde dans la table des symbole si l'ident est une constante
 				switch (tabSymb[index].categorie) {
 					case CONSTANTE:
@@ -645,7 +645,6 @@ public class PtGen {
 			case 101: // Fin d'un bloc de procédure
 				// Suppression des variables locales
 				it = bc + nbParam - 1;
-
 				// Mise a -1 des indents de parametres
 				for (int i = it; i >= bc; i--) {
 					tabSymb[i].code = -1;
@@ -654,7 +653,7 @@ public class PtGen {
 				po.produire(RETOUR);
 				po.produire(nbParam);
 				break;
-			case 102: // BINCOND pour aller directement au main
+			case 102: // BINCOND pour aller directement au main si il y a une procédure
 				if (desc.getUnite().equals(PROGRAMME)) {
 					po.produire(BINCOND);
 					po.produire(0); // on sauvegarde l'adresse de l'instruction à modifier
@@ -678,11 +677,11 @@ public class PtGen {
 				// On ajoute la procédure dans la table des symboles
 				placeIdent(UtilLex.numIdCourant, PROC, NEUTRE, po.getIpo());
 				placeIdent(-1, PRIVEE, NEUTRE, 0);
-				pileRep.empiler(it);
+				pileRep.empiler(it); // On empile l'indice de la procédure de la table des symboles
 				infoProc = 0; // On met à 0 l'adresse d'éxécution des paramètres de la procédure
-				nbParam = 0;
+				nbParam = 0; // On met à 0 le nombre de paramètres de la procédure
+				nbVarL = 0; // On met à 0 le nombre de variables locales de la procédure
 				break;
-
 			case 105: // Lecture d'un parametre fixe
 				index = presentIdent(bc);
 				if (index > 0 && tabSymb[index].categorie == PARAMFIXE) {
@@ -690,28 +689,24 @@ public class PtGen {
 							+ " est déjà déclaré");
 				}
 				// On ajoute l'identifiant dans la table des symboles
-				placeIdent(UtilLex.numIdCourant, PARAMFIXE, tCour, infoProc);
-				infoProc++;
+				placeIdent(UtilLex.numIdCourant, PARAMFIXE, tCour, nbParam);
 				nbParam++;
 				break;
-			case 106:
+			case 106: // Lecture d'un parametre modifiable
 				index = presentIdent(bc);
 				if (index > 0 && tabSymb[index].categorie == PARAMMOD) {
 					UtilLex.messErr("Erreur : l'identifiant " + UtilLex.chaineIdent(UtilLex.numIdCourant)
 							+ " est déjà déclaré");
 				}
 				// On ajoute l'identifiant dans la table des symboles
-				placeIdent(UtilLex.numIdCourant, PARAMMOD, tCour, infoProc);
-				infoProc++;
+				placeIdent(UtilLex.numIdCourant, PARAMMOD, tCour, nbParam);
 				nbParam++;
 				break;
 			case 107: // Fin de la déclaration des paramètres
 				// On met à jour l'adresse d'éxécution des paramètres de la procédure
-				tabSymb[pileRep.depiler()].info = infoProc;
-				bc = it - (nbParam - 1); // On met à jour le bc pour les paramètres (infosProc - 1 car on doit
-											// retrourner au premeir paramètre)
-				infoProc += 2; // On ajoute 2 pour laisser de la place pour le retour de la procédure pour
-								// MAPILE
+				tabSymb[pileRep.depiler()].info = nbParam;
+				bc = it - (nbParam - 1); // On met à jour le bc pour les paramètres
+				infoProc = nbParam + 2;
 				break;
 			case 110:
 				desc.setUnite(PROGRAMME);
@@ -743,7 +738,6 @@ public class PtGen {
 				po.constGen();
 				po.constObj();
 				break;
-
 			default:
 				System.out.println("Point de generation non prevu dans votre liste");
 				break;
