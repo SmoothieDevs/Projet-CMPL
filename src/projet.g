@@ -60,8 +60,8 @@ partiedef
 partieref: 'ref'  specif (',' specif)* ptvg
   ;
   
-specif  : ident  ( 'fixe' '(' type  ( ',' type  )* ')' )? 
-                 ( 'mod'  '(' type  ( ',' type  )* ')' )? 
+specif  : ident {PtGen.pt(114);} ( 'fixe' '(' type {PtGen.pt(115);} ( ',' type {PtGen.pt(115);}  )* ')' )? 
+                 ( 'mod'  '(' type {PtGen.pt(115);} ( ',' type {PtGen.pt(115);} )* ')' )? 
   ;
   
 consts  : 'const' ( ident {PtGen.pt(1);}  '=' valeur ptvg {PtGen.pt(9);} )+ 

@@ -1,3 +1,5 @@
+import javax.rmi.CORBA.Util;
+
 /*********************************************************************************
  * VARIABLES ET METHODES FOURNIES PAR LA CLASSE UtilLex (cf libClass_Projet)     *
  *       complement à l'ANALYSEUR LEXICAL produit par ANTLR                      *
@@ -131,8 +133,8 @@ public class PtGen {
 	// it = indice de remplissage de tabSymb
 	// bc = bloc courant (=1 si le bloc courant est le programme principal)
 	// info = adresse d'execution du code objet associe a l'ident courant
-	private static int it, bc, info, code, cat, type, index, infoProc, nbParam, nbVarL, indexProc, nbParamAppel, nbDef;
-
+	private static int it, bc, info, code, cat, type, index, infoProc, nbParam, indexProc, nbDef;
+	private static String nomFichier;
 	/**
 	 * utilitaire de recherche de l'ident courant (ayant pour code
 	 * UtilLex.numIdCourant) dans tabSymb
@@ -228,6 +230,8 @@ public class PtGen {
 
 		// initialisation du type de l'expression courante
 		tCour = NEUTRE;
+
+		nomFichier = "";
 
 	} // initialisations
 
@@ -709,6 +713,7 @@ public class PtGen {
 				infoProc = nbParam + 2;
 				break;
 			case 110:
+				nomFichier = UtilLex.chaineIdent(UtilLex.numIdCourant);
 				desc.setUnite(PROGRAMME);
 				break;
 			case 111:
@@ -719,6 +724,17 @@ public class PtGen {
 				break;
 			case 113:
 				desc.setTailleCode(po.getIpo());
+				desc.setTailleGlobaux(info);
+				break;
+			case 114:
+				if(desc.presentDef(UtilLex.chaineIdent(UtilLex.numIdCourant)) != 0){
+					desc.ajoutRef(UtilLex.chaineIdent(UtilLex.numIdCourant));
+				}else {
+					UtilLex.messErr("Erreur ref non existante : " + UtilLex.chaineIdent(UtilLex.numIdCourant));
+				}
+				break;
+			case 115:
+				desc.modifRefNbParam(desc.getNbRef(), desc.getRefNbParam(desc.getNbRef()) + 1);
 				break;
 			case 254:
 				// On vérifie que le nombre de définitions correspond au nombre de procédures
@@ -737,6 +753,7 @@ public class PtGen {
 				afftabSymb(); // affichage de la table des symboles en fin de compilation
 				po.constGen();
 				po.constObj();
+				desc.ecrireDesc(nomFichier);
 				break;
 			default:
 				System.out.println("Point de generation non prevu dans votre liste");
