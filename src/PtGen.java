@@ -1,4 +1,3 @@
-import javax.rmi.CORBA.Util;
 
 /*********************************************************************************
  * VARIABLES ET METHODES FOURNIES PAR LA CLASSE UtilLex (cf libClass_Projet)     *
@@ -133,7 +132,7 @@ public class PtGen {
 	// it = indice de remplissage de tabSymb
 	// bc = bloc courant (=1 si le bloc courant est le programme principal)
 	// info = adresse d'execution du code objet associe a l'ident courant
-	private static int it, bc, info, code, cat, type, index, infoProc, nbParam, indexProc, nbDef;
+	private static int it, bc, info, code, cat, type, index, infoProc, nbParam,nbParamAppel,nbVarL, indexProc, nbDef;
 	private static String nomFichier;
 	/**
 	 * utilitaire de recherche de l'ident courant (ayant pour code
