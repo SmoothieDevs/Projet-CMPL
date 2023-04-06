@@ -8,4 +8,7 @@ projetParser.java
 Mnemo.java
 Descripteur.java
 EltTabSymb.java
+./src/TPileRep.java
+./src/projetLexer.java
+./src/projetParser.java
 TPileRep.java
