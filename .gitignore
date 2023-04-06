@@ -1,3 +1,11 @@
 projet.tokens
 g2.java.bat
 g2.java.sh
+./TestsProject
+ProgObjet.java
+projetLexer.java
+projetParser.java
+Mnemo.java
+Descripteur.java
+EltTabSymb.java
+TPileRep.java
