@@ -324,15 +324,18 @@ public class PtGen {
 				}
 				break;
 			case 10:
-				if (bc > 1) { // produire RESERVER infoProc que si on est dans une procedure peut importe
-								// l'unite
-					po.produire(RESERVER);
-					po.produire(nbVarL);
-				} else if (desc.getUnite().equals(PROGRAMME)) { // produire RESERVER info que si on est dans un
-																// programme
-					po.produire(RESERVER);
-					po.produire(info);
+				if (desc.getUnite().equals(PROGRAMME)) {
+					if (bc > 1) { // produire RESERVER infoProc que si on est dans une procedure peut importe
+						// l'unite
+						po.produire(RESERVER);
+						po.produire(nbVarL);
+					} else { // produire RESERVER info que si on est dans un
+								// programme
+						po.produire(RESERVER);
+						po.produire(info);
+					}
 				}
+
 				break;
 			case 11: // lecture d'un ident pour affectation (ex : foo := 50)
 				index = presentIdent(1);
@@ -764,6 +767,7 @@ public class PtGen {
 				afftabSymb(); // affichage de la table des symboles en fin de compilation
 				po.constGen();
 				po.constObj();
+				desc.ecrireDesc(UtilLex.nomSource);
 				break;
 			case 255:
 				po.produire(ARRET);
