@@ -1,14 +1,17 @@
 programme condition: 
-var bool b1;
-
-proc ajout1 fixe (ent y) mod (bool z)
-    var ent i;
-	debut
-		i:=0;
-        z:=vrai;
-	fin;
-
+const val=10; b=faux;
+var ent u,v;
+bool x;
+ent k;
+proc q fixe (ent a) mod(ent b;bool c)
+var ent k;
 debut
-    b1:=vrai;
-    ajout1(10)(b1);
+ecrire(5+a*k-val>b et x);
+lire(k);
+c:=k=-1;
+si k>a alors b:=b+1 fsi;
+fin;
+debut
+lire(u); v:=0;
+q(u*val) (v,x);
 fin

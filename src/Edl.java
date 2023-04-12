@@ -1,9 +1,8 @@
 import java.io.*;
- //TODO : Renseigner le champs auteur : Nom1_Prenom1_Nom2_Prenom2_Nom3_Prenom3
  /**
  * 
- * @author XXX, YYY, ZZZ
- * @version 2020
+ * @author William Stephan, Badara TALL, Evenn RESNAIS
+ * @version 2023
  *
  */
 
@@ -81,8 +80,6 @@ public class Edl {
 		int[] po = new int[(nMod + 1) * MAXOBJ + 1];
 		
 		//TODO : ... A COMPLETER ...
-		// 
-		//
 
 		Ecriture.fermer(f2);
 

@@ -132,8 +132,8 @@ public class PtGen {
 	// it = indice de remplissage de tabSymb
 	// bc = bloc courant (=1 si le bloc courant est le programme principal)
 	// info = adresse d'execution du code objet associe a l'ident courant
-	private static int it, bc, info, code, cat, type, index, infoProc, nbParam,nbParamAppel,nbVarL, indexProc, nbDef;
-	private static String nomFichier;
+	private static int it, bc, info, code, cat, type, index, infoProc, nbParam, nbParamAppel, nbVarL, indexProc, nbDef;
+
 	/**
 	 * utilitaire de recherche de l'ident courant (ayant pour code
 	 * UtilLex.numIdCourant) dans tabSymb
@@ -230,8 +230,6 @@ public class PtGen {
 		// initialisation du type de l'expression courante
 		tCour = NEUTRE;
 
-		nomFichier = "";
-
 	} // initialisations
 
 	/**
@@ -254,9 +252,8 @@ public class PtGen {
 			case 2:
 				// lecture d'un ident pour déclaration d'une variable
 				// Recherche de l'ident dans la table des symboles
-				if (presentIdent(1) == 0) {
-					// Si l'ident n'est pas présent dans la table des symboles
-					if (bc > 1) {
+				if (bc > 1) {
+					if (presentIdent(bc) == 0) {
 						// Si on est dans un bloc
 						// On place l'ident dans la table des symboles
 						placeIdent(UtilLex.numIdCourant, VARLOCALE, tCour, infoProc);
@@ -265,16 +262,22 @@ public class PtGen {
 						// On incrémente le nombre de variable locale
 						nbVarL++;
 					} else {
+						// Si l'ident est présent dans la table des symboles
+						// On affiche un message d'erreur
+						UtilLex.messErr("Identifiant " + UtilLex.chaineIdent(UtilLex.numIdCourant) + " déjà déclaré");
+					}
+				} else {
+					if (presentIdent(1) == 0) {
 						// Si on est dans le programme principal
 						// On place l'ident dans la table des symboles
 						placeIdent(UtilLex.numIdCourant, VARGLOBALE, tCour, info);
 						// On incrémente l'adresse d'exécution
 						info++;
+					} else {
+						// Si l'ident est présent dans la table des symboles
+						// On affiche un message d'erreur
+						UtilLex.messErr("Identifiant " + UtilLex.chaineIdent(UtilLex.numIdCourant) + " déjà déclaré");
 					}
-				} else {
-					// Si l'ident est présent dans la table des symboles
-					// On affiche un message d'erreur
-					UtilLex.messErr("Identifiant déjà déclaré");
 				}
 				break;
 			case 3:
@@ -364,6 +367,7 @@ public class PtGen {
 					case VARGLOBALE:
 						po.produire(AFFECTERG);
 						po.produire(tabSymb[index].info);
+						modifVecteurTrans(TRANSDON);
 						break;
 					case PARAMMOD:
 						po.produire(AFFECTERL);
@@ -404,6 +408,7 @@ public class PtGen {
 						// on empile la valeur de la variable globale
 						po.produire(CONTENUG);
 						po.produire(tabSymb[indexExpression].info);
+						modifVecteurTrans(TRANSDON);
 						break;
 					case PARAMMOD:
 						// on empile la valeur du paramètre modifiable
@@ -476,16 +481,16 @@ public class PtGen {
 				verifBool();
 				po.produire(BSIFAUX);
 				po.produire(0); // on sauvegarde l'adresse de l'instruction à modifier
+				modifVecteurTrans(TRANSCODE);
 				// on empile l'adresse de l'instruction à modifier
 				pileRep.empiler(po.getIpo());
-				pileRep.toString();
 				break;
 			case 76:// fin de l'instruction d'un case
 				po.produire(BINCOND);
 				po.modifier(pileRep.depiler(), po.getIpo() + 2);
 				po.produire(pileRep.depiler()); // on sauvegarde l'adresse de l'instruction à modifier
+				modifVecteurTrans(TRANSCODE);
 				pileRep.empiler(po.getIpo());
-				pileRep.toString();
 				break;
 			case 77: // fin cond
 				po.modifier(pileRep.depiler(), po.getIpo() + 1);
@@ -500,15 +505,14 @@ public class PtGen {
 				break;
 			case 78: // cond
 				pileRep.empiler(0);
-				pileRep.toString();
 				break;
 			case 79: // autre
 				po.produire(BINCOND);
 				po.produire(0); // on sauvegarde l'adresse de l'instruction à modifier
+				modifVecteurTrans(TRANSCODE);
 				po.modifier(pileRep.depiler(), po.getIpo() + 1);
 				// on empile l'adresse de l'instruction à modifier
 				pileRep.empiler(po.getIpo());
-				pileRep.toString();
 				break;
 			case 80: // Après l'expression du si ou après l'expression du ttq ou après l'expression
 						// du cond
@@ -516,12 +520,14 @@ public class PtGen {
 				verifBool();
 				po.produire(BSIFAUX);
 				po.produire(0); // on sauvegarde l'adresse de l'instruction à modifier
+				modifVecteurTrans(TRANSCODE);
 				// on empile l'adresse de l'instruction à modifier
 				pileRep.empiler(po.getIpo());
 				break;
 			case 81: // Sinon
 				po.produire(BINCOND);
 				po.produire(0); // on sauvegarde l'adresse de l'instruction à modifier
+				modifVecteurTrans(TRANSCODE);
 				po.modifier(pileRep.depiler(), po.getIpo() + 1);
 				// on empile l'adresse de l'instruction à modifier
 				pileRep.empiler(po.getIpo());
@@ -536,11 +542,11 @@ public class PtGen {
 				po.produire(BINCOND);
 				po.modifier(pileRep.depiler(), po.getIpo() + 2);
 				po.produire(pileRep.depiler());
+				modifVecteurTrans(TRANSCODE);
 				break;
 			case 89: // Lecture
 				afftabSymb();
 				index = presentIdent(1);
-				System.out.println(index);
 				if (index == 0) {
 					UtilLex.messErr("Identifiant " + UtilLex.chaineIdent(UtilLex.numIdCourant) + " non déclaré");
 				}
@@ -569,6 +575,7 @@ public class PtGen {
 					case VARGLOBALE:
 						po.produire(AFFECTERG);
 						po.produire(tabSymb[index].info);
+						modifVecteurTrans(TRANSDON);
 						break;
 					case PARAMMOD:
 						po.produire(AFFECTERL);
@@ -608,8 +615,10 @@ public class PtGen {
 					UtilLex.messErr("Erreur : nombre de paramètres incorrect");
 				}
 				po.produire(APPEL);
-				po.produire(tabSymb[indexProc].info + 1); // + 1 car le code commence après le nom de la procédure
+				po.produire(tabSymb[indexProc].info); // + 1 car le code commence après le nom de la procédure
+				modifVecteurTrans(REFEXT);
 				po.produire(tabSymb[indexProc + 1].info);
+
 				break;
 			case 100: // Lecture un ident pour appel de procedure PARAMMOD
 				// on regarde dans la table des symbole si l'ident est déclaré
@@ -660,6 +669,7 @@ public class PtGen {
 				if (desc.getUnite().equals(PROGRAMME)) {
 					po.produire(BINCOND);
 					po.produire(0); // on sauvegarde l'adresse de l'instruction à modifier
+					modifVecteurTrans(TRANSCODE);
 					pileRep.empiler(po.getIpo());
 				}
 				break;
@@ -678,7 +688,7 @@ public class PtGen {
 				}
 				nbDef++; // On incrémente le nombre de procédure déclarées
 				// On ajoute la procédure dans la table des symboles
-				placeIdent(UtilLex.numIdCourant, PROC, NEUTRE, po.getIpo());
+				placeIdent(UtilLex.numIdCourant, PROC, NEUTRE, po.getIpo() + 1);
 				placeIdent(-1, PRIVEE, NEUTRE, 0);
 				pileRep.empiler(it); // On empile l'indice de la procédure de la table des symboles
 				infoProc = 0; // On met à 0 l'adresse d'éxécution des paramètres de la procédure
@@ -710,37 +720,46 @@ public class PtGen {
 				tabSymb[pileRep.depiler()].info = nbParam;
 				bc = it - (nbParam - 1); // On met à jour le bc pour les paramètres
 				infoProc = nbParam + 2;
+				desc.modifDefAdPo(nbDef, po.getIpo() + 1);
+				desc.modifDefNbParam(nbDef, nbParam);
 				break;
-			case 110:
-				nomFichier = UtilLex.chaineIdent(UtilLex.numIdCourant);
+			case 110: // On est dans le main
 				desc.setUnite(PROGRAMME);
 				break;
-			case 111:
+			case 111: // On est dans un module
 				desc.setUnite(MODULE);
 				break;
 			case 112: // Def de procedure
 				desc.ajoutDef(UtilLex.chaineIdent(UtilLex.numIdCourant));
 				break;
-			case 113:
-				desc.setTailleCode(po.getIpo());
+			case 113: // Modification de la taille globale
 				desc.setTailleGlobaux(info);
 				break;
-			case 114:
-				if(desc.presentDef(UtilLex.chaineIdent(UtilLex.numIdCourant)) != 0){
-					desc.ajoutRef(UtilLex.chaineIdent(UtilLex.numIdCourant));
-				}else {
-					UtilLex.messErr("Erreur ref non existante : " + UtilLex.chaineIdent(UtilLex.numIdCourant));
+			case 114: // Ref de procedure
+				desc.ajoutRef(UtilLex.chaineIdent(UtilLex.numIdCourant));
+				index = presentIdent(1);
+				if (index != 0 && tabSymb[index].categorie == PROC) {
+					UtilLex.messErr("Erreur : la procédure " + UtilLex.chaineIdent(UtilLex.numIdCourant)
+							+ " est déjà déclarée");
+					break;
 				}
+				// On ajoute la procédure dans la table des symboles
+				placeIdent(UtilLex.numIdCourant, PROC, NEUTRE, desc.getNbRef());
+				nbParam = 0;
 				break;
-			case 115:
-				desc.modifRefNbParam(desc.getNbRef(), desc.getRefNbParam(desc.getNbRef()) + 1);
+			case 115: // Modification du nombre de paramètres de la procédure ref
+				nbParam++;
+				break;
+			case 116: // Modification du nombre de paramètres de la procédure ref
+				desc.modifRefNbParam(desc.getNbRef(), nbParam);
+				placeIdent(-1, REF, NEUTRE, nbParam);
 				break;
 			case 254:
 				// On vérifie que le nombre de définitions correspond au nombre de procédures
 				if (nbDef != desc.getNbDef()) {
 					UtilLex.messErr("Erreur : le nombre de définitions ne correspond pas au nombre de procédures");
 				}
-
+				desc.setTailleCode(po.getIpo());
 				System.out.println(desc.toString());
 				afftabSymb(); // affichage de la table des symboles en fin de compilation
 				po.constGen();
@@ -748,11 +767,12 @@ public class PtGen {
 				break;
 			case 255:
 				po.produire(ARRET);
+				desc.setTailleCode(po.getIpo());
 				System.out.println(desc.toString());
 				afftabSymb(); // affichage de la table des symboles en fin de compilation
 				po.constGen();
 				po.constObj();
-				desc.ecrireDesc(nomFichier);
+				desc.ecrireDesc(UtilLex.nomSource);
 				break;
 			default:
 				System.out.println("Point de generation non prevu dans votre liste");
