@@ -1,0 +1,10 @@
+FICHIER TestsProjet\Test.desc :
+
+unite          programme
+tailleCode     60
+tailleGlobaux  4
+nbDef          0
+nbRef          0
+nbTransExt     1
+tabDef          
+tabRef          
