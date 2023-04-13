@@ -425,62 +425,63 @@ public class PtGen {
 				}
 				break;
 			//////// EXPRESSION ////////
-			case 60: // Vérifier que l'expression est de type entier
+			case 15: // Vérifier que l'expression est de type entier
 				verifEnt();
 				break;
-			case 61: // Vérifier que l'expression est de type booléen
+			case 16: // Vérifier que l'expression est de type booléen
 				verifBool();
 				break;
-			case 62: // Produire un ADD
+			case 17: // Produire un ADD
 				po.produire(ADD);
 				break;
-			case 63: // Produire un SOUS
+			case 18: // Produire un SOUS
 				po.produire(SOUS);
 				break;
-			case 64: // Produire un MUL
+			case 19: // Produire un MUL
 				po.produire(MUL);
 				break;
-			case 65: // Produire un DIV
+			case 20: // Produire un DIV
 				po.produire(DIV);
 				break;
-			case 66: // produire un OU
+			case 21: // produire un OU
 				po.produire(OU);
 				tCour = BOOL;
 				break;
-			case 67: // produire un ET
+			case 22: // produire un ET
 				po.produire(ET);
 				tCour = BOOL;
 				break;
-			case 68: // produire un NON
+			case 23: // produire un NON
 				po.produire(NON);
 				tCour = BOOL;
 				break;
-			case 69: // produire un EGAL
+			case 24: // produire un EGAL
 				po.produire(EG);
 				tCour = BOOL;
 				break;
-			case 70: // produire un DIFF
+			case 25: // produire un DIFF
 				po.produire(DIFF);
 				tCour = BOOL;
 				break;
-			case 71: // produire un SUP
+			case 26: // produire un SUP
 				po.produire(SUP);
 				tCour = BOOL;
 				break;
-			case 72: // produire un SUPEG
+			case 27: // produire un SUPEG
 				po.produire(SUPEG);
 				tCour = BOOL;
 				break;
-			case 73: // produire un INF
+			case 28: // produire un INF
 				po.produire(INF);
 				tCour = BOOL;
 				break;
-			case 74: // produire un INFEG
+			case 29: // produire un INFEG
 				po.produire(INFEG);
 				tCour = BOOL;
 				break;
 			//////// INSTRUCTION ////////
-			case 75: // lecture d'un case
+			case 30: // lecture d'un case ou Après l'expression du si ou après l'expression du ttq ou
+						// après l'expression
 				verifBool();
 				po.produire(BSIFAUX);
 				po.produire(0); // on sauvegarde l'adresse de l'instruction à modifier
@@ -488,14 +489,14 @@ public class PtGen {
 				// on empile l'adresse de l'instruction à modifier
 				pileRep.empiler(po.getIpo());
 				break;
-			case 76:// fin de l'instruction d'un case
+			case 31:// fin de l'instruction d'un case
 				po.produire(BINCOND);
 				po.modifier(pileRep.depiler(), po.getIpo() + 2);
 				po.produire(pileRep.depiler()); // on sauvegarde l'adresse de l'instruction à modifier
 				modifVecteurTrans(TRANSCODE);
 				pileRep.empiler(po.getIpo());
 				break;
-			case 77: // fin cond
+			case 32: // fin cond
 				po.modifier(pileRep.depiler(), po.getIpo() + 1);
 				int lastIncond = pileRep.depiler();
 				// parcourir la pile pour modifier les adresses des instructions à modifier
@@ -506,10 +507,10 @@ public class PtGen {
 				}
 				po.modifier(lastIncond, po.getIpo() + 1);
 				break;
-			case 78: // cond
+			case 33: // cond
 				pileRep.empiler(0);
 				break;
-			case 79: // autre
+			case 34: // autre ou Sinon
 				po.produire(BINCOND);
 				po.produire(0); // on sauvegarde l'adresse de l'instruction à modifier
 				modifVecteurTrans(TRANSCODE);
@@ -517,37 +518,19 @@ public class PtGen {
 				// on empile l'adresse de l'instruction à modifier
 				pileRep.empiler(po.getIpo());
 				break;
-			case 80: // Après l'expression du si ou après l'expression du ttq ou après l'expression
-						// du cond
-				// on verifie que l'expression est de type booléen
-				verifBool();
-				po.produire(BSIFAUX);
-				po.produire(0); // on sauvegarde l'adresse de l'instruction à modifier
-				modifVecteurTrans(TRANSCODE);
-				// on empile l'adresse de l'instruction à modifier
-				pileRep.empiler(po.getIpo());
-				break;
-			case 81: // Sinon
-				po.produire(BINCOND);
-				po.produire(0); // on sauvegarde l'adresse de l'instruction à modifier
-				modifVecteurTrans(TRANSCODE);
-				po.modifier(pileRep.depiler(), po.getIpo() + 1);
-				// on empile l'adresse de l'instruction à modifier
-				pileRep.empiler(po.getIpo());
-				break;
-			case 82: // finSi
+			case 35: // finSi
 				po.modifier(pileRep.depiler(), po.getIpo() + 1);
 				break;
-			case 83: // TantQue
+			case 36: // TantQue
 				pileRep.empiler(po.getIpo() + 1);
 				break;
-			case 84: // Faits
+			case 37: // Faits
 				po.produire(BINCOND);
 				po.modifier(pileRep.depiler(), po.getIpo() + 2);
 				po.produire(pileRep.depiler());
 				modifVecteurTrans(TRANSCODE);
 				break;
-			case 89: // Lecture
+			case 38: // Lecture
 				afftabSymb();
 				index = presentIdent(1);
 				if (index == 0) {
@@ -590,7 +573,7 @@ public class PtGen {
 						break;
 				}
 				break;
-			case 90: // Ecriture
+			case 39: // Ecriture
 				switch (tCour) {
 					case ENT:
 						po.produire(ECRENT);
@@ -603,17 +586,17 @@ public class PtGen {
 						break;
 				}
 				break;
-			case 96: // Paramètre Fixe
+			case 40: // Paramètre Fixe
 				nbParamAppel++;
 				break;
-			case 98: // Appel de procédure
+			case 41: // Appel de procédure
 				indexProc = presentIdent(1);
 				if (indexProc == 0) {
 					UtilLex.messErr("Procédure " + UtilLex.chaineIdent(UtilLex.numIdCourant) + " non déclaré");
 				}
 				nbParamAppel = 0;
 				break;
-			case 99: // Appel de procédure (production)
+			case 42: // Appel de procédure (production)
 				if (nbParamAppel != tabSymb[indexProc + 1].info) {
 					UtilLex.messErr("Erreur : nombre de paramètres incorrect");
 				}
@@ -623,7 +606,7 @@ public class PtGen {
 				po.produire(tabSymb[indexProc + 1].info);
 
 				break;
-			case 100: // Lecture un ident pour appel de procedure PARAMMOD
+			case 43: // Lecture un ident pour appel de procedure PARAMMOD
 				// on regarde dans la table des symbole si l'ident est déclaré
 				index = presentIdent(bc);
 				if (index == 0) {
@@ -657,7 +640,7 @@ public class PtGen {
 						break;
 				}
 				break;
-			case 101: // Fin d'un bloc de procédure
+			case 44: // Fin d'un bloc de procédure
 				// Suppression des variables locales
 				it = bc + nbParam - 1;
 				// Mise a -1 des indents de parametres
@@ -668,7 +651,7 @@ public class PtGen {
 				po.produire(RETOUR);
 				po.produire(nbParam);
 				break;
-			case 102: // BINCOND pour aller directement au main si il y a une procédure
+			case 45: // BINCOND pour aller directement au main si il y a une procédure
 				if (desc.getUnite().equals(PROGRAMME)) {
 					po.produire(BINCOND);
 					po.produire(0); // on sauvegarde l'adresse de l'instruction à modifier
@@ -676,12 +659,12 @@ public class PtGen {
 					pileRep.empiler(po.getIpo());
 				}
 				break;
-			case 103: // fin de la déclaration des procs, on modifie le BINCOND pour aller au main
+			case 46: // fin de la déclaration des procs, on modifie le BINCOND pour aller au main
 				if (desc.getUnite().equals(PROGRAMME)) {
 					po.modifier(pileRep.depiler(), po.getIpo() + 1);
 				}
 				break;
-			case 104: // Déclaration d'une Procedure
+			case 47: // Déclaration d'une Procedure
 				// On regarde si la procédure est déjà déclarée
 				index = presentIdent(1);
 				if (index != 0 && tabSymb[index].categorie == PROC) {
@@ -689,16 +672,23 @@ public class PtGen {
 							+ " est déjà déclarée");
 					break;
 				}
-				nbDef++; // On incrémente le nombre de procédure déclarées
 				// On ajoute la procédure dans la table des symboles
 				placeIdent(UtilLex.numIdCourant, PROC, NEUTRE, po.getIpo() + 1);
-				placeIdent(-1, PRIVEE, NEUTRE, 0);
+				// chercher dans tabDef si la procédure est déjà déclarée
+				int ind = desc.presentDef(UtilLex.chaineIdent(UtilLex.numIdCourant));
+				if (ind != 0) {
+					nbDef++; // On incrémente le nombre de procédure déclarées
+					placeIdent(-1, DEF, NEUTRE, 0);
+
+				} else {
+					placeIdent(-1, PRIVEE, NEUTRE, 0);
+				}
 				pileRep.empiler(it); // On empile l'indice de la procédure de la table des symboles
 				infoProc = 0; // On met à 0 l'adresse d'éxécution des paramètres de la procédure
 				nbParam = 0; // On met à 0 le nombre de paramètres de la procédure
 				nbVarL = 0; // On met à 0 le nombre de variables locales de la procédure
 				break;
-			case 105: // Lecture d'un parametre fixe
+			case 48: // Lecture d'un parametre fixe
 				index = presentIdent(bc);
 				if (index > 0 && tabSymb[index].categorie == PARAMFIXE) {
 					UtilLex.messErr("Erreur : l'identifiant " + UtilLex.chaineIdent(UtilLex.numIdCourant)
@@ -708,7 +698,7 @@ public class PtGen {
 				placeIdent(UtilLex.numIdCourant, PARAMFIXE, tCour, nbParam);
 				nbParam++;
 				break;
-			case 106: // Lecture d'un parametre modifiable
+			case 49: // Lecture d'un parametre modifiable
 				index = presentIdent(bc);
 				if (index > 0 && tabSymb[index].categorie == PARAMMOD) {
 					UtilLex.messErr("Erreur : l'identifiant " + UtilLex.chaineIdent(UtilLex.numIdCourant)
@@ -718,27 +708,31 @@ public class PtGen {
 				placeIdent(UtilLex.numIdCourant, PARAMMOD, tCour, nbParam);
 				nbParam++;
 				break;
-			case 107: // Fin de la déclaration des paramètres
+			case 50: // Fin de la déclaration des paramètres
 				// On met à jour l'adresse d'éxécution des paramètres de la procédure
-				tabSymb[pileRep.depiler()].info = nbParam;
+				int j = pileRep.depiler();
+				tabSymb[j].info = nbParam;
 				bc = it - (nbParam - 1); // On met à jour le bc pour les paramètres
 				infoProc = nbParam + 2;
-				desc.modifDefAdPo(nbDef, po.getIpo() + 1);
-				desc.modifDefNbParam(nbDef, nbParam);
+				// si la proc est DEF on met à jour le nb de param
+				if (tabSymb[j].categorie == DEF) {
+					desc.modifDefAdPo(nbDef, po.getIpo() + 1);
+					desc.modifDefNbParam(nbDef, nbParam);
+				}
 				break;
-			case 110: // On est dans le main
+			case 51: // On est dans le main
 				desc.setUnite(PROGRAMME);
 				break;
-			case 111: // On est dans un module
+			case 52: // On est dans un module
 				desc.setUnite(MODULE);
 				break;
-			case 112: // Def de procedure
+			case 53: // Def de procedure
 				desc.ajoutDef(UtilLex.chaineIdent(UtilLex.numIdCourant));
 				break;
-			case 113: // Modification de la taille globale
+			case 54: // Modification de la taille globale
 				desc.setTailleGlobaux(info);
 				break;
-			case 114: // Ref de procedure
+			case 55: // Ref de procedure
 				desc.ajoutRef(UtilLex.chaineIdent(UtilLex.numIdCourant));
 				index = presentIdent(1);
 				if (index != 0 && tabSymb[index].categorie == PROC) {
@@ -750,27 +744,22 @@ public class PtGen {
 				placeIdent(UtilLex.numIdCourant, PROC, NEUTRE, desc.getNbRef());
 				nbParam = 0;
 				break;
-			case 115: // Modification du nombre de paramètres de la procédure ref
+			case 56: // Modification du nombre de paramètres de la procédure ref
 				nbParam++;
 				break;
-			case 116: // Modification du nombre de paramètres de la procédure ref
+			case 57: // Modification du nombre de paramètres de la procédure ref
 				desc.modifRefNbParam(desc.getNbRef(), nbParam);
 				placeIdent(-1, REF, NEUTRE, nbParam);
 				break;
-			case 254:
-				// On vérifie que le nombre de définitions correspond au nombre de procédures
-				if (nbDef != desc.getNbDef()) {
-					UtilLex.messErr("Erreur : le nombre de définitions ne correspond pas au nombre de procédures");
-				}
-				desc.setTailleCode(po.getIpo());
-				System.out.println(desc.toString());
-				afftabSymb(); // affichage de la table des symboles en fin de compilation
-				po.constGen();
-				po.constObj();
-				desc.ecrireDesc(UtilLex.nomSource);
-				break;
 			case 255:
-				po.produire(ARRET);
+				if (desc.getUnite().equals(MODULE)) {
+					// On vérifie que le nombre de définitions correspond au nombre de procédures
+					if (nbDef != desc.getNbDef()) {
+						UtilLex.messErr("Erreur : le nombre de définitions ne correspond pas au nombre de procédures");
+					}
+				} else {
+					po.produire(ARRET);
+				}
 				desc.setTailleCode(po.getIpo());
 				System.out.println(desc.toString());
 				afftabSymb(); // affichage de la table des symboles en fin de compilation

@@ -35,33 +35,33 @@ catch (RecognitionException e) {reportError (e) ; throw e ; }}
 
 
 unite  :   unitprog {PtGen.pt(255);} EOF
-      |    unitmodule {PtGen.pt(254);} EOF
+      |    unitmodule {PtGen.pt(255);} EOF
   ;
   
 unitprog
-  : 'programme' ident ':' {PtGen.pt(110);} 
+  : 'programme' ident ':' {PtGen.pt(51);} 
      declarations  
      corps { System.out.println("succes, arret de la compilation "); }
   ;
   
 unitmodule
-  : 'module' ident ':' {PtGen.pt(111);} 
-     declarations   
+  : 'module' ident ':' {PtGen.pt(52);} 
+     declarations
   ;
   
 declarations
-  : partiedef? partieref? consts? vars? decprocs? {PtGen.pt(113);}
+  : partiedef? partieref? consts? vars? decprocs? {PtGen.pt(54);}
   ;
   
 partiedef
-  : 'def' ident {PtGen.pt(112);}  (',' ident {PtGen.pt(112);} )* ptvg
+  : 'def' ident {PtGen.pt(53);}  (',' ident {PtGen.pt(53);} )* ptvg
   ;
   
-partieref: 'ref'  specif {PtGen.pt(116);} (',' specif {PtGen.pt(116);})*  ptvg
+partieref: 'ref'  specif {PtGen.pt(57);} (',' specif {PtGen.pt(57);})*  ptvg
   ;
   
-specif  : ident {PtGen.pt(114);} ( 'fixe' '(' type {PtGen.pt(115);} ( ',' type {PtGen.pt(115);}  )* ')' )? 
-                 ( 'mod'  '(' type {PtGen.pt(115);} ( ',' type {PtGen.pt(115);} )* ')'  )? 
+specif  : ident {PtGen.pt(55);} ( 'fixe' '(' type {PtGen.pt(56);} ( ',' type {PtGen.pt(56);}  )* ')' )? 
+                 ( 'mod'  '(' type {PtGen.pt(56);} ( ',' type {PtGen.pt(56);} )* ')'  )? 
   ;
   
 consts  : 'const' ( ident {PtGen.pt(1);}  '=' valeur ptvg {PtGen.pt(9);} )+ 
@@ -74,10 +74,10 @@ type  : 'ent' {PtGen.pt(7);}
   |     'bool' {PtGen.pt(8);}
   ;
   
-decprocs: {PtGen.pt(102);} (decproc ptvg)+ {PtGen.pt(103);}
+decprocs: {PtGen.pt(45);} (decproc ptvg)+ {PtGen.pt(46);}
   ;
   
-decproc :  'proc'  ident {PtGen.pt(104);} parfixe? parmod? {PtGen.pt(107);} consts? vars? corps {PtGen.pt(101);}
+decproc :  'proc'  ident {PtGen.pt(47);} parfixe? parmod? {PtGen.pt(50);} consts? vars? corps {PtGen.pt(44);}
   ;
   
 ptvg  : ';'
@@ -90,13 +90,13 @@ corps : 'debut' instructions 'fin'
 parfixe: 'fixe' '(' pf( ';' pf )* ')'
   ;
   
-pf  : type ident {PtGen.pt(105);} ( ',' ident {PtGen.pt(105);} )*  
+pf  : type ident {PtGen.pt(48);} ( ',' ident {PtGen.pt(48);} )*  
   ;
 
 parmod  : 'mod' '(' pm ( ';' pm)* ')'
   ;
   
-pm  : type ident {PtGen.pt(106);}  ( ',' ident {PtGen.pt(106);}  )*
+pm  : type ident {PtGen.pt(49);}  ( ',' ident {PtGen.pt(49);}  )*
   ;
   
 instructions
@@ -113,65 +113,65 @@ instruction
   |
   ;
   
-inssi : 'si' expression {PtGen.pt(80);} 'alors' instructions  ( {PtGen.pt(81);} 'sinon'  instructions)? 'fsi' {PtGen.pt(82);}
+inssi : 'si' expression {PtGen.pt(30);} 'alors' instructions  ( {PtGen.pt(34);} 'sinon'  instructions)? 'fsi' {PtGen.pt(35);}
   ;
   
-inscond : 'cond' {PtGen.pt(78);} expression {PtGen.pt(75);} ':' instructions 
-          (',' {PtGen.pt(76);} expression {PtGen.pt(75);} ':' instructions  )* 
-          ({PtGen.pt(79);} 'aut'  instructions |  ) 
-          {PtGen.pt(77);} 'fcond' 
+inscond : 'cond' {PtGen.pt(33);} expression {PtGen.pt(30);} ':' instructions 
+          (',' {PtGen.pt(31);} expression {PtGen.pt(30);} ':' instructions  )* 
+          ({PtGen.pt(34);} 'aut'  instructions |  ) 
+          {PtGen.pt(32);} 'fcond' 
   ;
   
-boucle  : 'ttq' {PtGen.pt(83);}  expression {PtGen.pt(80);} 'faire' instructions 'fait' {PtGen.pt(84);}
+boucle  : 'ttq' {PtGen.pt(36);}  expression {PtGen.pt(30);} 'faire' instructions 'fait' {PtGen.pt(37);}
   ;
   
-lecture: 'lire' '(' ident {PtGen.pt(89);} ( ',' ident {PtGen.pt(89);} )* ')' 
+lecture: 'lire' '(' ident {PtGen.pt(38);} ( ',' ident {PtGen.pt(38);} )* ')' 
   ;
   
-ecriture: 'ecrire' '(' expression {PtGen.pt(90);} ( ',' expression {PtGen.pt(90);} )*  ')'
+ecriture: 'ecrire' '(' expression {PtGen.pt(39);} ( ',' expression {PtGen.pt(39);} )*  ')'
    ;
   
 affouappel: 
   ident   ( {PtGen.pt(11);}   ':=' expression {PtGen.pt(12);}
-            | {PtGen.pt(98);} (effixes (effmods)?)? {PtGen.pt(99);}  
+            | {PtGen.pt(41);} (effixes (effmods)?)? {PtGen.pt(42);}  
            )
   ;
   
-effixes : '(' (expression {PtGen.pt(96);} (',' expression {PtGen.pt(96);} )*)? ')'
+effixes : '(' (expression {PtGen.pt(40);} (',' expression {PtGen.pt(40);} )*)? ')'
   ;
   
-effmods :'(' (ident {PtGen.pt(100);} (',' ident {PtGen.pt(100);} )*)? ')'
+effmods :'(' (ident {PtGen.pt(43);} (',' ident {PtGen.pt(43);} )*)? ')'
   ; 
   
-expression: (exp1) ('ou'{PtGen.pt(61);}  exp1 {PtGen.pt(61);}{PtGen.pt(66);} )*
+expression: (exp1) ('ou'{PtGen.pt(16);}  exp1 {PtGen.pt(16);}{PtGen.pt(21);} )*
   ;
   
-exp1  : exp2 ('et' {PtGen.pt(61);} exp2 {PtGen.pt(61);}{PtGen.pt(67);} )*
+exp1  : exp2 ('et' {PtGen.pt(16);} exp2 {PtGen.pt(16);}{PtGen.pt(22);} )*
   ;
   
-exp2  : 'non' exp2 {PtGen.pt(61);} {PtGen.pt(68);}
+exp2  : 'non' exp2 {PtGen.pt(16);} {PtGen.pt(23);}
   | exp3  
   ;
   
 exp3  : exp4 
-  ( '='  {PtGen.pt(60);} exp4 {PtGen.pt(60);}{PtGen.pt(69);}
-  | '<>' {PtGen.pt(60);} exp4 {PtGen.pt(60);}{PtGen.pt(70);}
-  | '>'  {PtGen.pt(60);} exp4 {PtGen.pt(60);}{PtGen.pt(71);}
-  | '>=' {PtGen.pt(60);} exp4 {PtGen.pt(60);}{PtGen.pt(72);}
-  | '<'  {PtGen.pt(60);} exp4 {PtGen.pt(60);}{PtGen.pt(73);}
-  | '<=' {PtGen.pt(60);} exp4  {PtGen.pt(60);} {PtGen.pt(74);}
+  ( '='  {PtGen.pt(15);} exp4 {PtGen.pt(15);}{PtGen.pt(24);}
+  | '<>' {PtGen.pt(15);} exp4 {PtGen.pt(15);}{PtGen.pt(25);}
+  | '>'  {PtGen.pt(15);} exp4 {PtGen.pt(15);}{PtGen.pt(26);}
+  | '>=' {PtGen.pt(15);} exp4 {PtGen.pt(15);}{PtGen.pt(27);}
+  | '<'  {PtGen.pt(15);} exp4 {PtGen.pt(15);}{PtGen.pt(28);}
+  | '<=' {PtGen.pt(15);} exp4  {PtGen.pt(15);} {PtGen.pt(29);}
   ) ?
   ;
   
 exp4  : exp5 
-        ('+' {PtGen.pt(60);} exp5 {PtGen.pt(60);} {PtGen.pt(62);}
-        |'-' {PtGen.pt(60);} exp5 {PtGen.pt(60);} {PtGen.pt(63);}
+        ('+' {PtGen.pt(15);} exp5 {PtGen.pt(15);} {PtGen.pt(17);}
+        |'-' {PtGen.pt(15);} exp5 {PtGen.pt(15);} {PtGen.pt(18);}
         )*
   ;
   
 exp5  : primaire 
-        (    '*' {PtGen.pt(60);}  primaire {PtGen.pt(60);}{PtGen.pt(64);}
-          | 'div' {PtGen.pt(60);} primaire {PtGen.pt(60);}{PtGen.pt(65);}
+        (    '*' {PtGen.pt(15);}  primaire {PtGen.pt(15);}{PtGen.pt(19);}
+          | 'div' {PtGen.pt(15);} primaire {PtGen.pt(15);}{PtGen.pt(20);}
         )*
   ;
   

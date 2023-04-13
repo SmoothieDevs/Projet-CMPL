@@ -249,7 +249,7 @@ public class Edl {
 
 		// on ecrit le fichier .map
 		for (int i = 0; i < ipo; i++)
-			Ecriture.ecrireStringln(f2, "" + po[i]);
+			Ecriture.ecrireStringln(f2, "" + po[i+1]);
 
 		Ecriture.fermer(f2);
 
